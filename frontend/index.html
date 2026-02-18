@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carbon-Aware Supply Chain Optimization | System-of-Systems Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Light theme from supply_chain.jpg: peachy-pink, cream, warm yellows/orange, light blue, red accent, dark text */
+      --bg: #fdf6f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #fefcf9;
+      --text: #1a1a1a;
+      --text-muted: #5c534a;
+      --primary: #c41e3a;
+      --primary-dim: #a01830;
+      --primary-light: #fce8eb;
+      --accent: #e67e22;
+      --accent-dim: #d35400;
+      --accent-blue: #5d9cec;
+      --warning: #d4a017;
+      --danger: #c41e3a;
+      --border: #e8ddd4;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: var(--font-sans);
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.5;
+      color: var(--text);
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url('/static/supply_chain.jpg') center center / cover no-repeat;
+      filter: blur(6px) brightness(0.97) saturate(0.85);
+      z-index: -2;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(253, 246, 240, 0.75) 0%, rgba(254, 252, 249, 0.82) 40%, rgba(253, 248, 242, 0.78) 100%);
+      z-index: -1;
+    }
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      position: relative;
+      z-index: 0;
+    }
+
+    /* Hero & value proposition */
+    .hero {
+      text-align: center;
+      padding: 2rem 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .hero-img-wrap {
+      margin: 0 auto 1.25rem;
+      max-width: 380px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      background: var(--bg-card);
+    }
+    .hero-img-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 140px;
+      object-fit: contain;
+      object-position: center;
+    }
+    .hero h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .hero .tagline {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 0.75rem;
+    }
+    .hero .badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .hero .badge {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-muted);
+    }
+    .hero .badge.highlight { border-color: var(--primary); color: var(--primary); }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .card h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+    .card h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.75rem 0; color: var(--text); }
+
+    /* Input section */
+    .input-section label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.5rem; }
+    textarea {
+      width: 100%;
+      min-height: 88px;
+      padding: 0.875rem 1rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      resize: vertical;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2); }
+    textarea::placeholder { color: var(--text-muted); opacity: 0.8; }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      gap: 0.75rem;
+    }
+    .row:last-child { border-bottom: none; }
+    .row label { margin: 0; min-width: 120px; font-weight: 500; font-size: 0.875rem; color: var(--text-muted); }
+    .row .value, .row .value-display { color: var(--text); font-size: 0.9rem; }
+    .row input, .row select {
+      flex: 1;
+      max-width: 200px;
+      margin-left: auto;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.875rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
+    }
+    .row select { cursor: pointer; }
+    .btn-edit {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8rem;
+      background: var(--bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+    .btn-edit:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    button {
+      padding: 0.6rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      border: none;
+      transition: background 0.15s, transform 0.05s;
+    }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    button.primary:hover:not(:disabled) { background: var(--primary-dim); }
+    button.secondary {
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    button.secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-dim); }
+    button.danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--border);
+    }
+    button.danger:hover:not(:disabled) { background: var(--primary-light); border-color: var(--danger); }
+    .actions { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
+    .error { color: var(--danger); font-size: 0.875rem; margin-top: 0.5rem; }
+
+    /* Shipment summary bar */
+    .shipment-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+    .shipment-bar span { color: var(--text-muted); }
+    .shipment-bar strong { color: var(--text); font-weight: 500; }
+
+    /* Module row - one after the other in sequence */
+    .module-row-wrap {
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      margin: 0 -0.25rem;
+    }
+    .module-row-wrap::-webkit-scrollbar { height: 6px; }
+    .module-row-wrap::-webkit-scrollbar-track { background: var(--bg); border-radius: 3px; }
+    .module-row-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .module-grid {
+      display: flex;
+      flex-direction: row;
+      gap: 0.75rem;
+      min-width: min-content;
+    }
+    .module-card {
+      flex: 0 0 160px;
+      min-width: 160px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.875rem 1rem;
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+    }
+    .module-card .module-arrow {
+      display: none;
+    }
+    @media (min-width: 900px) {
+      .module-card:not(:last-child) .module-arrow {
+        display: block;
+        position: absolute;
+        right: -0.6rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        z-index: 1;
+      }
+      .module-card { position: relative; }
+    }
+    .module-card .module-title { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .module-card .module-name { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; line-height: 1.3; }
+    .module-card .module-status {
+      font-size: 0.75rem;
+      margin-top: auto;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .module-card .module-metric { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; font-family: var(--font-mono); }
+    .module-card .module-metric strong { color: var(--text); }
+    .module-card[data-status="idle"] .module-status { color: var(--text-muted); }
+    .module-card[data-status="running"] .module-status { color: var(--warning); }
+    .module-card[data-status="running"] { border-color: var(--warning); box-shadow: 0 0 0 1px rgba(210, 153, 34, 0.2); }
+    .module-card[data-status="complete"] .module-status { color: var(--primary); }
+    .module-card[data-status="complete"] { border-color: var(--primary); background: rgba(252, 232, 235, 0.4); }
+    .module-card[data-status="error"] .module-status { color: var(--danger); }
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Results panel */
+    .results-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 768px) { .results-panel { grid-template-columns: 1fr; } }
+    .results-main {
+      background: linear-gradient(135deg, rgba(196, 30, 58, 0.06) 0%, rgba(254, 252, 249, 0.9) 50%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+    }
+    .results-main .rec { font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-row .label { color: var(--text-muted); }
+    .metric-row .value { font-weight: 500; color: var(--text); font-family: var(--font-mono); }
+    .metric-row.highlight .value { color: var(--primary); }
+    .results-detail .metric-row { padding: 0.4rem 0; font-size: 0.85rem; }
+    .warning-box {
+      background: rgba(212, 160, 23, 0.12);
+      border: 1px solid var(--warning);
+      color: var(--text);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+    }
+    .governance-list { font-size: 0.85rem; color: var(--text-muted); margin: 0; padding-left: 1.25rem; }
+    .governance-list li { margin-bottom: 0.35rem; }
+
+    /* Technical section */
+    .tech-section {
+      margin-top: 1rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+    .tech-toggle {
+      background: none;
+      border: none;
+      color: var(--accent-dim);
+      font-size: 0.875rem;
+      cursor: pointer;
+      padding: 0.25rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tech-toggle:hover { text-decoration: underline; }
+    .tech-content {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .tech-content .formula { color: var(--accent-dim); margin: 0.5rem 0; }
+    .tech-content ul { margin: 0.5rem 0; padding-left: 1.25rem; }
+
+    /* Visibility */
+    #step-editor { display: none; }
+    #dashboard-section { display: none; }
+    #step-results { display: none; }
+    .loading { opacity: 0.7; pointer-events: none; }
+    .we-assumed-title { font-size: 0.8rem; color: var(--text-muted); margin: 0.75rem 0 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="hero-img-wrap">
+        <img src="/static/supply_chain.jpg" alt="Supply chain flow" />
+      </div>
+      <h1>Operational Resilience Under Carbon Constraints</h1>
+      <p class="tagline">System-of-systems supply chain optimization: carbon–service–cost trade-offs, governance levers, and early-warning indicators for high-stakes logistics.</p>
+      <div class="badges">
+        <span class="badge highlight">CASP Metric</span>
+        <span class="badge">7-Module Pipeline</span>
+        <span class="badge">Carbon-Aware AI</span>
+        <span class="badge">Vendor Segmentation</span>
+        <span class="badge">Early Warning</span>
+      </div>
+    </header>
+
+    <section id="step-query" class="card input-section">
+      <h2>Describe your shipment</h2>
+      <label for="query">Natural language query</label>
+      <textarea id="query" placeholder="e.g. Ship insulin from Mumbai to Delhi, 150 km, pharmacy — or: fashion delivery Bangalore to Chennai, 300 km"></textarea>
+      <div class="actions">
+        <button id="btn-extract" class="primary">Extract details</button>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin:0.5rem 0 0 0;">We derive package type, distance, weight, and defaults from 25K-record logistics data.</p>
+      <div id="extract-error" class="error"></div>
+    </section>
+
+    <section id="step-editor" class="card">
+      <h2>Shipment details</h2>
+      <div class="shipment-bar" id="shipment-bar"></div>
+      <p class="we-assumed-title">Editable fields (click Edit to change)</p>
+      <div id="we-assumed"></div>
+      <div class="actions">
+        <button id="btn-run" class="primary">Run full pipeline</button>
+        <button id="btn-start-over" class="danger">Start over</button>
+      </div>
+      <div id="optimize-error" class="error"></div>
+    </section>
+
+    <section id="dashboard-section" class="card">
+      <h2>Pipeline — Module status (in sequence)</h2>
+      <div class="module-row-wrap">
+        <div class="module-grid" id="module-grid"></div>
+      </div>
+    </section>
+
+    <section id="step-results" class="card">
+      <h2>Optimization results</h2>
+      <div class="results-panel">
+        <div class="results-main">
+          <div class="rec" id="rec-name">—</div>
+          <div id="results-metrics"></div>
+          <div id="results-warning" class="warning-box" style="display:none;"></div>
+        </div>
+        <div class="results-detail">
+          <h3>Business impact</h3>
+          <div id="results-business"></div>
+          <h3 style="margin-top:1rem;">Early-warning indicators (Module 07)</h3>
+          <div id="results-early-warning"></div>
+          <h3 style="margin-top:1rem;">Governance</h3>
+          <ul class="governance-list" id="results-governance"></ul>
+          <div class="tech-section">
+            <button type="button" class="tech-toggle" id="tech-toggle">▼ Technical details (CASP, modules, data)</button>
+            <div class="tech-content" id="tech-content" style="display:none;">
+              <p><strong>CASP</strong> = Service Performance / Total Carbon (transport + cold-chain + AI compute). Portfolio CASP = weighted harmonic mean across categories.</p>
+              <p class="formula">Total Carbon = transport_gCO₂ + cold_chain_overhead + AI_compute (~50 gCO₂/optimization)</p>
+              <p><strong>Modules:</strong></p>
+              <ul>
+                <li>01 Predictive Analytics — GradientBoosting (cost, carbon, on-time)</li>
+                <li>02 Vendor Segmentation — K-Means clustering (Premium / Reliable / Budget / Unreliable)</li>
+                <li>03 Carbon Cost of Intelligence — AI compute carbon by model &amp; grid</li>
+                <li>04 Grid Carbon Scenarios — Country intensity (e.g. India 632, France 60 gCO₂/kWh)</li>
+                <li>05 Trade-off Frontiers — CASP &amp; Pareto</li>
+                <li>06 Governance Levers — Sourcing rules, buffers, compute policies</li>
+                <li>07 Early Warning System — Delay probability, risk score, and three indicators: Supplier Concentration (&gt;40%), Geographic Clustering (&gt;60%), Cold-Chain Fragility</li>
+              </ul>
+              <p>Data: Delivery_Logistics.csv (25K records, 9 package types, 9 partners). Stakes: critical 99%, high-value 95%, standard 85% on-time targets.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="impact-line" class="card" style="margin-top:1rem; background:var(--bg-elevated); border-color:var(--border); display:none;"></div>
+      <div class="actions" style="margin-top:1.25rem;">
+        <button id="btn-back" class="primary">Edit & run again</button>
+        <button id="btn-export" class="secondary">Copy summary</button>
+        <button id="btn-start-over2" class="danger">Start over</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API = '';
+    let features = null;
+    let defaultsUsed = [];
+
+    const FIELD_LABELS = {
+      package_type: 'Package type',
+      distance_km: 'Distance (km)',
+      package_weight_kg: 'Weight (kg)',
+      origin: 'Origin',
+      destination: 'Destination',
+      delivery_mode: 'Speed',
+      delivery_partner: 'Partner',
+      vehicle_type: 'Vehicle',
+      weather_condition: 'Weather',
+      region: 'Region',
+    };
+    const OPTIONS = {
+      delivery_mode: ['same day', 'express', 'two day', 'standard'],
+      delivery_partner: ['delhivery', 'dhl', 'blue dart', 'shadowfax', 'xpressbees', 'ecom express', 'ekart', 'dtdc', 'gati', 'fedex'],
+      vehicle_type: ['bike', 'ev bike', 'scooter', 'ev van', 'van', 'truck'],
+      weather_condition: ['clear', 'cold', 'rainy', 'foggy', 'hot', 'stormy'],
+      region: ['west', 'central', 'east', 'north', 'south'],
+    };
+
+    const MODULES = [
+      { id: 'm01', num: '01', name: 'Predictive Analytics', desc: 'ML models (cost, carbon, on-time)', tech: 'GradientBoostingRegressor' },
+      { id: 'm02', num: '02', name: 'Vendor Segmentation', desc: 'K-Means clustering', tech: '4 clusters' },
+      { id: 'm03', num: '03', name: 'Carbon Cost Intelligence', desc: 'AI carbon calculation', tech: 'gCO₂/inference' },
+      { id: 'm04', num: '04', name: 'Grid Carbon Scenarios', desc: 'Country comparison', tech: 'gCO₂/kWh' },
+      { id: 'm05', num: '05', name: 'Trade-off Frontiers', desc: 'CASP metric, Pareto', tech: 'Service/Carbon' },
+      { id: 'm06', num: '06', name: 'Governance Levers', desc: 'Policy recommendations', tech: 'Sourcing, buffers' },
+      { id: 'm07', num: '07', name: 'Early Warning System', desc: 'Risk prediction', tech: 'Delay prob. × impact' },
+    ];
+
+    function show(step) {
+      document.getElementById('step-query').style.display = 'block';
+      document.getElementById('step-editor').style.display = (step === 'editor' || step === 'results') ? 'block' : 'none';
+      document.getElementById('dashboard-section').style.display = (step === 'editor' || step === 'results') ? 'block' : 'none';
+      document.getElementById('step-results').style.display = step === 'results' ? 'block' : 'none';
+    }
+
+    function renderShipmentBar() {
+      const bar = document.getElementById('shipment-bar');
+      if (!features) { bar.innerHTML = ''; return; }
+      const parts = [];
+      if (features.package_type) parts.push(`<span>Package</span> <strong>${String(features.package_type)}</strong>`);
+      if (features.distance_km != null) parts.push(`<span>Distance</span> <strong>${features.distance_km} km</strong>`);
+      if (features.package_weight_kg != null) parts.push(`<span>Weight</span> <strong>${features.package_weight_kg} kg</strong>`);
+      if (features.origin) parts.push(`<span>Origin</span> <strong>${features.origin}</strong>`);
+      if (features.destination) parts.push(`<span>Destination</span> <strong>${features.destination}</strong>`);
+      bar.innerHTML = parts.join('');
+    }
+
+    function renderWeAssumed() {
+      const div = document.getElementById('we-assumed');
+      const editable = ['package_weight_kg', 'origin', 'destination', 'delivery_mode', 'delivery_partner', 'vehicle_type', 'weather_condition', 'region'];
+      div.innerHTML = editable.map(key => {
+        const label = FIELD_LABELS[key] || key;
+        const val = features[key] ?? '';
+        const opts = OPTIONS[key];
+        if (opts) {
+          return `<div class="row" data-key="${key}">
+            <label>${label}</label>
+            <span class="value-display">${val}</span>
+            <select class="value-edit" style="display:none;">${opts.map(o => `<option value="${o}" ${o === val ? 'selected' : ''}>${o}</option>`).join('')}</select>
+            <button type="button" class="btn-edit">Edit</button>
+          </div>`;
+        }
+        return `<div class="row" data-key="${key}">
+          <label>${label}</label>
+          <span class="value-display">${val}</span>
+          <input type="text" class="value-edit" style="display:none;" value="${val}" />
+          <button type="button" class="btn-edit">Edit</button>
+        </div>`;
+      }).join('');
+
+      div.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const row = this.closest('.row');
+          const key = row.dataset.key;
+          const display = row.querySelector('.value-display');
+          const edit = row.querySelector('.value-edit');
+          if (edit.style.display === 'none') {
+            display.style.display = 'none';
+            edit.style.display = edit.tagName === 'SELECT' ? 'inline-block' : 'block';
+            edit.focus();
+          } else {
+            const newVal = edit.tagName === 'SELECT' ? edit.value : edit.value.trim();
+            if (key === 'package_weight_kg' || key === 'distance_km') features[key] = parseFloat(newVal) || features[key];
+            else features[key] = newVal;
+            display.textContent = features[key];
+            display.style.display = '';
+            edit.style.display = 'none';
+          }
+        });
+      });
+      div.querySelectorAll('.value-edit').forEach(el => {
+        el.addEventListener('change', function () {
+          const row = this.closest('.row');
+          const key = row.dataset.key;
+          const display = row.querySelector('.value-display');
+          const newVal = this.tagName === 'SELECT' ? this.value : this.value.trim();
+          if (key === 'package_weight_kg' || key === 'distance_km') features[key] = parseFloat(newVal) || features[key];
+          else features[key] = newVal;
+          display.textContent = features[key];
+          display.style.display = '';
+          this.style.display = 'none';
+        });
+        el.addEventListener('blur', function () {
+          if (this.style.display !== 'none') {
+            const row = this.closest('.row');
+            const key = row.dataset.key;
+            const display = row.querySelector('.value-display');
+            const newVal = this.tagName === 'SELECT' ? this.value : this.value.trim();
+            if (key === 'package_weight_kg' || key === 'distance_km') features[key] = parseFloat(newVal) || features[key];
+            else features[key] = newVal;
+            display.textContent = features[key];
+            display.style.display = '';
+            this.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    function renderModuleGrid(status, metrics) {
+      const grid = document.getElementById('module-grid');
+      grid.innerHTML = MODULES.map((m, i) => {
+        const st = (status && status[m.id]) || 'idle';
+        const meta = metrics && metrics[m.id];
+        let statusHtml = '';
+        if (st === 'running') statusHtml = '<span class="spinner"></span> Running...';
+        else if (st === 'complete') statusHtml = '✓ Complete' + (meta && meta.time != null ? ` · ${meta.time}` : '');
+        else if (st === 'error') statusHtml = '✗ Error';
+        else statusHtml = 'Waiting';
+        let metricHtml = '';
+        if (meta && meta.text) metricHtml = `<div class="module-metric">${meta.text}</div>`;
+        const arrow = i < MODULES.length - 1 ? '<span class="module-arrow" aria-hidden="true">→</span>' : '';
+        return `<div class="module-card" data-status="${st}" data-module-index="${i}">
+          <div class="module-title">Module ${m.num}</div>
+          <div class="module-name">${m.name}</div>
+          <div class="module-desc" style="font-size:0.75rem;color:var(--text-muted);">${m.desc}</div>
+          ${metricHtml}
+          <div class="module-status">${statusHtml}</div>
+          ${arrow}
+        </div>`;
+      }).join('');
+    }
+
+    /** runningIndex = which module is currently "running" (0..7). 0..runningIndex-1 = complete, rest idle. */
+    function setPipelineState(runningIndex, metrics) {
+      const status = {};
+      MODULES.forEach((m, i) => {
+        if (i < runningIndex) status[m.id] = 'complete';
+        else if (i === runningIndex) status[m.id] = 'running';
+        else status[m.id] = 'idle';
+      });
+      renderModuleGrid(status, metrics);
+    }
+
+    function setAllModulesComplete(metrics) {
+      const status = {};
+      MODULES.forEach(m => { status[m.id] = 'complete'; });
+      renderModuleGrid(status, metrics);
+    }
+
+    const STEP_MS = 380;
+
+    function runPipelineWithSequence() {
+      let step = 0;
+      const fetchPromise = fetch(API + '/api/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ features }),
+      });
+
+      function advance() {
+        setPipelineState(step, null);
+        const next = step + 1;
+        setTimeout(() => {
+          if (next < MODULES.length) {
+            step = next;
+            setTimeout(advance, STEP_MS);
+          }
+          /* when next === MODULES.length, M07 stays "running" until fetch returns */
+        }, STEP_MS);
+      }
+      advance();
+
+      return fetchPromise;
+    }
+
+    function setModulesComplete(data) {
+      const breakdown = (data.optimization_result && data.optimization_result.breakdown) || {};
+      const earlyWarning = (data.optimization_result && data.optimization_result.early_warning) || {};
+      const gov = data.governance || {};
+      const carbon = (data.transport_carbon || 0) + (data.ai_carbon || 0);
+      const metrics = {
+        m01: { text: `Cost ₹${(breakdown.cost != null ? Number(breakdown.cost).toFixed(0) : '—')} · On-time ${(breakdown.predicted_on_time != null ? Number(breakdown.predicted_on_time).toFixed(1) : '—')}%`, time: '—' },
+        m02: { text: `Carriers evaluated · Best: ${data.recommendation || '—'}`, time: '—' },
+        m03: { text: `AI compute: ${(data.ai_carbon != null ? Number(data.ai_carbon).toFixed(0) : '—')} gCO₂`, time: '—' },
+        m04: { text: `Grid: India (632 gCO₂/kWh)`, time: '—' },
+        m05: { text: `CASP: ${(data.optimization_result && data.optimization_result.casp_score != null ? Number(data.optimization_result.casp_score).toFixed(6) : '—')}`, time: '—' },
+        m06: { text: (gov.recommendations && gov.recommendations.length) ? `${gov.recommendations.length} recommendations` : 'Policy levers', time: '—' },
+        m07: { text: `Risk: ${data.risk_level || '—'} · Delay ${(earlyWarning.delay_probability != null ? (earlyWarning.delay_probability * 100).toFixed(1) : '—')}%`, time: '—' },
+      };
+      const status = {};
+      MODULES.forEach(m => { status[m.id] = 'complete'; });
+      renderModuleGrid(status, metrics);
+    }
+
+    function setModulesError() {
+      const status = {};
+      MODULES.forEach(m => { status[m.id] = 'complete'; });
+      status.m07 = 'error';
+      renderModuleGrid(status, null);
+    }
+
+    document.getElementById('btn-extract').addEventListener('click', async () => {
+      const query = document.getElementById('query').value.trim();
+      document.getElementById('extract-error').textContent = '';
+      if (!query) {
+        document.getElementById('extract-error').textContent = 'Enter a shipment description.';
+        return;
+      }
+      document.getElementById('btn-extract').disabled = true;
+      document.getElementById('step-query').classList.add('loading');
+      try {
+        const res = await fetch(API + '/api/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+        const text = await res.text();
+        let data;
+        try { data = text ? JSON.parse(text) : {}; } catch (_) { throw new Error(res.ok ? 'Invalid response.' : (text || res.statusText)); }
+        if (!res.ok) throw new Error(data.detail || data.message || text || res.statusText);
+        features = data.features;
+        defaultsUsed = data.defaults_used || [];
+        renderShipmentBar();
+        renderWeAssumed();
+        renderModuleGrid(null, null);
+        show('editor');
+      } catch (e) {
+        document.getElementById('extract-error').textContent = e.message || 'Extract failed.';
+      } finally {
+        document.getElementById('btn-extract').disabled = false;
+        document.getElementById('step-query').classList.remove('loading');
+      }
+    });
+
+    document.getElementById('btn-run').addEventListener('click', async () => {
+      document.getElementById('optimize-error').textContent = '';
+      document.getElementById('btn-run').disabled = true;
+      document.getElementById('step-editor').classList.add('loading');
+      show('editor');
+      try {
+        const res = await runPipelineWithSequence();
+        const text = await res.text();
+        let data;
+        try { data = text ? JSON.parse(text) : {}; } catch (_) { throw new Error(res.ok ? 'Invalid response.' : (text || res.statusText)); }
+        if (!res.ok) throw new Error(data.detail || data.message || text || res.statusText);
+
+        setModulesComplete(data);
+
+        const rec = data.recommendation;
+        const cost = data.cost != null ? data.cost : (data.optimization_result && data.optimization_result.breakdown && data.optimization_result.breakdown.cost);
+        const carbon = (data.transport_carbon != null ? data.transport_carbon : 0) + (data.ai_carbon != null ? data.ai_carbon : 0);
+        const onTime = data.on_time_probability != null ? data.on_time_probability : (data.optimization_result && data.optimization_result.breakdown && data.optimization_result.breakdown.predicted_on_time);
+        const casp = data.optimization_result && data.optimization_result.casp_score;
+
+        document.getElementById('rec-name').textContent = rec ? `Recommended: ${rec}` : 'No recommendation';
+        let metricsHtml = '';
+        metricsHtml += `<div class="metric-row"><span class="label">Cost</span><span class="value">₹${cost != null ? Number(cost).toFixed(2) : '—'}</span></div>`;
+        metricsHtml += `<div class="metric-row"><span class="label">Industry benchmark</span><span class="value">${data.industry_benchmark != null ? '₹' + Number(data.industry_benchmark).toFixed(2) : '—'}</span></div>`;
+        metricsHtml += `<div class="metric-row highlight"><span class="label">Efficiency</span><span class="value">${data.efficiency || '—'}${data.efficiency_percentage ? ' (' + data.efficiency_percentage + ')' : ''}</span></div>`;
+        metricsHtml += `<div class="metric-row"><span class="label">Carbon</span><span class="value">${carbon != null ? Number(carbon).toFixed(0) + ' gCO₂' : '—'}</span></div>`;
+        metricsHtml += `<div class="metric-row"><span class="label">On-time</span><span class="value">${onTime != null ? Number(onTime).toFixed(1) + '%' : '—'}</span></div>`;
+        metricsHtml += `<div class="metric-row"><span class="label">Risk</span><span class="value">${data.risk_level || '—'}</span></div>`;
+        if (data.recommended_buffer_days != null) metricsHtml += `<div class="metric-row"><span class="label">Buffer (days)</span><span class="value">${data.recommended_buffer_days}</span></div>`;
+        if (casp != null) metricsHtml += `<div class="metric-row"><span class="label">CASP score</span><span class="value">${Number(casp).toFixed(6)}</span></div>`;
+        document.getElementById('results-metrics').innerHTML = metricsHtml;
+
+        const warnEl = document.getElementById('results-warning');
+        const warn = data.optimization_result && data.optimization_result.breakdown && data.optimization_result.breakdown.warning;
+        if (warn) { warnEl.textContent = warn; warnEl.style.display = 'block'; } else { warnEl.style.display = 'none'; }
+
+        const bizEl = document.getElementById('results-business');
+        let bizHtml = `<div class="metric-row"><span class="label">Transport carbon</span><span class="value">${(data.transport_carbon != null ? Number(data.transport_carbon).toFixed(0) : '—')} gCO₂</span></div>`;
+        bizHtml += `<div class="metric-row"><span class="label">AI compute carbon</span><span class="value">${(data.ai_carbon != null ? Number(data.ai_carbon).toFixed(0) : '—')} gCO₂</span></div>`;
+        bizHtml += `<div class="metric-row"><span class="label">Greenest viable</span><span class="value">${data.greenest_viable || '—'}</span></div>`;
+        if (data.risk_factors && data.risk_factors.length) bizHtml += `<div class="metric-row"><span class="label">Risk factors</span><span class="value">${data.risk_factors.join(', ')}</span></div>`;
+        bizEl.innerHTML = bizHtml;
+
+        const govRecs = (data.governance && data.governance.recommendations) || [];
+        const ewi = data.early_warning_indicators || {};
+        const ewiEl = document.getElementById('results-early-warning');
+        if (ewi.supplier_concentration_index || ewi.geographic_clustering || ewi.cold_chain_fragility) {
+          const s = ewi.supplier_concentration_index || {};
+          const g = ewi.geographic_clustering || {};
+          const c = ewi.cold_chain_fragility || {};
+          const q = ewi.quantified_amplification_risk || {};
+          let html = '<div class="metric-row"><span class="label">Amplification risk</span><span class="value">' + (q.label || '—') + (q.score != null ? ' (' + Number(q.score).toFixed(2) + ')' : '') + '</span></div>';
+          html += '<div class="metric-row"><span class="label">1. Supplier Concentration</span><span class="value">' + (s.value_pct != null ? s.value_pct + '%' : '—') + (s.exceeds ? ' ⚠ >' + s.threshold_pct + '%' : '') + '</span></div>';
+          html += '<div class="metric-row"><span class="label">2. Geographic Clustering</span><span class="value">' + (g.value_pct != null ? g.value_pct + '%' : '—') + (g.exceeds ? ' ⚠ >' + g.threshold_pct + '%' : '') + '</span></div>';
+          html += '<div class="metric-row"><span class="label">3. Cold-Chain Fragility</span><span class="value">' + (c.is_fragile ? 'Yes ⚠' : 'No') + (c.reason ? ' — ' + c.reason : '') + '</span></div>';
+          ewiEl.innerHTML = html;
+        } else {
+          ewiEl.innerHTML = '<p style="font-size:0.85rem;color:var(--text-muted);">No early-warning indicators for this run.</p>';
+        }
+        document.getElementById('results-governance').innerHTML = govRecs.length
+          ? govRecs.map(r => `<li>${r.category || 'Policy'}: ${r.recommendation || ''}</li>`).join('')
+          : '<li>No governance recommendations for this run.</li>';
+
+        const impactEl = document.getElementById('impact-line');
+        const eff = data.efficiency_percentage || '';
+        const riskFactors = (data.risk_factors && data.risk_factors.length) ? data.risk_factors.join(', ') : '';
+        const bufferDays = data.recommended_buffer_days != null ? data.recommended_buffer_days : '';
+        let impactHtml = '<strong>Impact:</strong> ';
+        if (eff) impactHtml += `Cost ${eff} vs industry benchmark. `;
+        impactHtml += `On-time target ${onTime != null ? Number(onTime).toFixed(1) : '—'}% · Carbon footprint ${carbon != null ? (carbon / 1000).toFixed(2) : '—'} kg CO₂.`;
+        if (riskFactors) impactHtml += ` Risk factors: ${riskFactors}.`;
+        if (bufferDays) impactHtml += ` Recommended buffer: ${bufferDays} day(s).`;
+        impactEl.innerHTML = impactHtml;
+        impactEl.style.display = 'block';
+
+        show('results');
+      } catch (e) {
+        document.getElementById('optimize-error').textContent = e.message || 'Optimization failed.';
+        setModulesError();
+      } finally {
+        document.getElementById('btn-run').disabled = false;
+        document.getElementById('step-editor').classList.remove('loading');
+      }
+    });
+
+    document.getElementById('tech-toggle').addEventListener('click', () => {
+      const content = document.getElementById('tech-content');
+      const isHidden = content.style.display === 'none';
+      content.style.display = isHidden ? 'block' : 'none';
+      document.getElementById('tech-toggle').textContent = isHidden ? '▲ Hide technical details' : '▼ Technical details (CASP, modules, data)';
+    });
+
+    document.getElementById('btn-export').addEventListener('click', () => {
+      const rec = document.getElementById('rec-name').textContent;
+      const metricsEl = document.getElementById('results-metrics');
+      const lines = [rec, '', metricsEl ? metricsEl.innerText : ''];
+      const text = lines.join('\n');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => { document.getElementById('btn-export').textContent = 'Copied!'; setTimeout(() => { document.getElementById('btn-export').textContent = 'Copy summary'; }, 2000); }).catch(() => {});
+      }
+    });
+
+    document.getElementById('btn-start-over').addEventListener('click', () => { features = null; defaultsUsed = []; document.getElementById('impact-line').style.display = 'none'; show('query'); document.getElementById('query').value = ''; });
+    document.getElementById('btn-start-over2').addEventListener('click', () => { features = null; defaultsUsed = []; document.getElementById('impact-line').style.display = 'none'; show('query'); document.getElementById('query').value = ''; });
+    document.getElementById('btn-back').addEventListener('click', () => { show('editor'); });
+  </script>
+</body>
+</html>

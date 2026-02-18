@@ -1,0 +1,143 @@
+{
+  "module_01_predictive_analytics": {
+    "cost_model": {
+      "r2_score": 0.9997605328584205,
+      "mae": 5.295938125062445,
+      "mae_currency": "\u20b95.30",
+      "test_samples": 5000,
+      "cv_5fold": {
+        "r2_mean": 0.9997511544824531,
+        "r2_std": 8.478564042328808e-06,
+        "mae_mean": 5.404802929284888,
+        "mae_std": 0.06669017088195099
+      }
+    },
+    "carbon_model": {
+      "r2_score": 0.9997334564348443,
+      "mae": 977.471704941961,
+      "mae_units": "977 gCO\u2082",
+      "test_samples": 5000
+    },
+    "on_time_model": {
+      "r2_score": 0.903816700241176,
+      "mae": 5.712016037699134,
+      "mae_units": "5.71%",
+      "test_samples": 5000,
+      "cv_5fold": {
+        "r2_mean": 0.9004130134812716,
+        "r2_std": 0.006219651704764527,
+        "mae_mean": 5.8715835706457025,
+        "mae_std": 0.2165019818913722
+      }
+    },
+    "training_time_seconds": 5.73127007484436,
+    "dataset_size": 25000,
+    "train_size": 20000,
+    "test_size": 5000
+  },
+  "module_02_vendor_segmentation": {
+    "silhouette_score": 0.451692750182879,
+    "n_clusters": 4,
+    "n_vendors": 9,
+    "clustering_time_seconds": 0.04038596153259277,
+    "clusters": {
+      "0": {
+        "type": "Unreliable",
+        "vendor_count": 3,
+        "avg_cost": 868.8190022047871,
+        "avg_on_time_pct": 72.68538742163389,
+        "avg_rating": 3.6538138498219137,
+        "vendors": [
+          "amazon logistics",
+          "ekart",
+          "shadowfax"
+        ]
+      },
+      "1": {
+        "type": "Budget/Cheap",
+        "vendor_count": 2,
+        "avg_cost": 852.7327246832357,
+        "avg_on_time_pct": 75.01886396394423,
+        "avg_rating": 3.6930459862936296,
+        "vendors": [
+          "delhivery",
+          "fedex"
+        ]
+      },
+      "2": {
+        "type": "Unreliable",
+        "vendor_count": 3,
+        "avg_cost": 868.2083388929345,
+        "avg_on_time_pct": 73.35967434378863,
+        "avg_rating": 3.6791185856289625,
+        "vendors": [
+          "blue dart",
+          "dhl",
+          "ecom express"
+        ]
+      },
+      "3": {
+        "type": "Unreliable",
+        "vendor_count": 1,
+        "avg_cost": 868.1657675159234,
+        "avg_on_time_pct": 71.72682236376504,
+        "avg_rating": 3.60898796886058,
+        "vendors": [
+          "xpressbees"
+        ]
+      }
+    }
+  },
+  "module_07_early_warning": {
+    "precision": 0.9411764705882353,
+    "recall": 0.9715142428785607,
+    "f1_score": 0.9561047583917374,
+    "confusion_matrix": {
+      "true_negatives": 3585,
+      "false_positives": 81,
+      "false_negatives": 38,
+      "true_positives": 1296
+    },
+    "classification_report": {
+      "On-Time": {
+        "precision": 0.9895114545956389,
+        "recall": 0.9779050736497545,
+        "f1-score": 0.9836740293593086,
+        "support": 3666.0
+      },
+      "Delayed": {
+        "precision": 0.9411764705882353,
+        "recall": 0.9715142428785607,
+        "f1-score": 0.9561047583917374,
+        "support": 1334.0
+      },
+      "accuracy": 0.9762,
+      "macro avg": {
+        "precision": 0.9653439625919371,
+        "recall": 0.9747096582641577,
+        "f1-score": 0.969889393875523,
+        "support": 5000.0
+      },
+      "weighted avg": {
+        "precision": 0.9766156808624638,
+        "recall": 0.9762,
+        "f1-score": 0.9763185478651605,
+        "support": 5000.0
+      }
+    },
+    "training_time_seconds": 2.0107498168945312,
+    "dataset_size": 25000,
+    "test_samples": 5000,
+    "delay_rate": 0.26676,
+    "cv_5fold": {
+      "f1_mean": 0.9544376312123506,
+      "f1_std": 0.002933626920140444,
+      "precision_mean": 0.9388055866985028,
+      "precision_std": 0.0034620452524888024,
+      "recall_mean": 0.9706107561373102,
+      "recall_std": 0.004031004407681442,
+      "accuracy_mean": 0.97528,
+      "accuracy_std": 0.0015879546593023524
+    }
+  }
+}

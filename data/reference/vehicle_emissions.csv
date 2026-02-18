@@ -1,0 +1,7 @@
+vehicle_type,gco2_per_km,source
+bike,50,UK Government GHG conversion factors 2024
+ev bike,20,UK Government GHG conversion factors 2024
+scooter,60,DEFRA road transport methodology
+ev van,150,UK Government GHG conversion factors 2024
+van,800,UK Government GHG conversion factors 2024
+truck,1200,UK Government GHG conversion factors 2024

@@ -1,0 +1,27 @@
+{
+  "query": "Ship clothing (20 kg) from Mumbai to Delhi",
+  "risk_assessment": {
+    "risk_level": "LOW",
+    "delay_probability": 0.0016,
+    "recommended_buffer_days": 0,
+    "risk_factors": [
+      "High-risk partner: delhivery (+20% risk)"
+    ]
+  },
+  "distance_km": 1400,
+  "carrier_options_count": 10,
+  "best_route": {
+    "delivery_partner": "shadowfax",
+    "vehicle_type": "bike"
+  },
+  "optimization": {
+    "cost": 1544.84,
+    "predicted_on_time_pct": 96.3,
+    "total_carbon_gco2": 70000.0
+  },
+  "early_warning": {
+    "risk_level": "LOW",
+    "delay_probability": 0.0002,
+    "risk_score": 0.0
+  }
+}
