@@ -1,5 +1,7 @@
 # Supply Chain Multi-Agent Optimization System
 
+> **Live Demo:** https://anacodicai.com/casp/
+
 Complete implementation matching the submitted abstract for high-stakes logistics optimization with carbon-aware computation.
 
 ## 🏗️ System Architecture
