@@ -7,6 +7,13 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from dotenv import load_dotenv
+
+# Load .env before anything else reads os.environ.
+# override=False means real env vars (set by prod infra) always win over .env values.
+_ENV_FILE = Path(__file__).resolve().parent / ".env"
+load_dotenv(dotenv_path=_ENV_FILE, override=False)
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
